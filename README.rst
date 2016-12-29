@@ -1,6 +1,30 @@
 xcmd
 ========
 
+.. image:: https://travis-ci.org/rgs1/xcmd.svg?branch=master
+    :target: https://travis-ci.org/rgs1/xcmd
+    :alt: Build Status
+
+.. image:: https://coveralls.io/repos/rgs1/xcmd/badge.png?branch=master
+    :target: https://coveralls.io/r/rgs1/xcmd?branch=master
+    :alt: Coverage Status
+
+.. image:: https://badge.fury.io/py/xcmd.svg
+    :target: http://badge.fury.io/py/xcmd
+    :alt: PyPI version
+
+.. image:: https://requires.io/github/rgs1/xcmd/requirements.svg?branch=master
+    :target: https://requires.io/github/rgs1/xcmd/requirements/?branch=master
+    :alt: Requirements Status
+
+.. image:: https://img.shields.io/pypi/pyversions/xcmd.svg
+    :target: https://pypi.python.org/pypi/xcmd
+    :alt: Python Versions
+
+.. image:: https://codeclimate.com/github/rgs1/xcmd.png
+    :target: https://codeclimate.com/github/rgs1/xcmd
+    :alt: Code Climate
+
 **Table of Contents**
 
 -  `tl;dr <#tldr>`__
