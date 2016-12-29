@@ -40,7 +40,7 @@ class XCmdTestCase(unittest.TestCase):
         special = ['!!', '$?']
         self.assertEquals(regular, sorted(shell.commands))
         self.assertEquals(special, sorted(shell.special_commands))
-        self.assertEquals(regular + special, sorted(shell.all_commands))
+        self.assertEquals(special + regular, sorted(shell.all_commands))
 
         shell.do_cat('/etc/passwd')
         self.assertEqual('cat called with /etc/passwd\n', output.getvalue())
