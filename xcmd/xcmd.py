@@ -25,6 +25,9 @@ try:
 except ImportError:
     from io import StringIO
 
+from .complete import complete, complete_values
+from .conf import Conf, ConfVar
+from .conf_store import ConfStore
 from .util import matches
 
 
@@ -204,6 +207,16 @@ MAX_OUTPUT = 1 << 20
 
 class XCmd(cmd.Cmd):
     """ extends cmd.Cmd """
+
+    CONF_PATH = os.path.join(os.environ['HOME'], '.xcmd')
+    DEFAULT_CONF = Conf(
+        ConfVar(
+            'xcmd_history_size',
+            'Number of commands to save into history',
+            100
+        )
+    )
+
     def __init__(self, hist_file_name=None, setup_readline=True, output_io=sys.stdout):
         cmd.Cmd.__init__(self)
 
@@ -213,7 +226,18 @@ class XCmd(cmd.Cmd):
         self._output = output_io
         self._last_output = ''
 
+        # config management
+        self._conf_store = ConfStore(path=self.CONF_PATH)
+        self._conf_store.ensure_path()
+        self._conf = self._conf_store.get('config')
+        if self._conf is None:
+            self._conf_store.save('config', self.DEFAULT_CONF)
+            self._conf = self._conf_store.get('config')
+
         if setup_readline:
+            if hist_file_name is None:
+                # default
+                hist_file_name = self._conf_store.full_path('history')
             self._setup_readline(hist_file_name)
 
         # build the list of regular commands
@@ -453,3 +477,100 @@ class XCmd(cmd.Cmd):
 
         import atexit
         atexit.register(readline.write_history_file, path)
+
+    @ensure_params(Required('cmd'), MultiOptional('args'))
+    def do_conf(self, params):
+        """
+\x1b[1mNAME\x1b[0m
+        conf - Runtime configuration management
+
+\x1b[1mSYNOPSIS\x1b[0m
+        conf <describe|get|save|set> [args]
+
+\x1b[1mDESCRIPTION\x1b[0m
+
+        conf describe [name]
+
+          describes the configuration variable [name], or all if no name is given.
+
+        conf get [name]
+
+          with a name given, it gets the value for the configuration variable. Otherwise, it'll
+          get all available configuration variables.
+
+        conf set <name> <value>
+
+          sets the variable <name> to <value>.
+
+        conf save
+
+          persists the running configuration.
+
+\x1b[1mEXAMPLES\x1b[0m
+        > conf get
+        foo: bar
+        two: dos
+
+        > conf describe foo
+        foo is used to set the operating parameter for bar
+
+        > conf get foo
+        bar
+
+        > conf set foo 2
+
+        > conf get foo
+        2
+
+        > conf save
+        Configuration saved.
+
+        """
+        conf = self._conf
+        error = 'Unknown variable.'
+
+        def get():
+            if len(params.args) == 0:
+                out = str(conf)
+            else:
+                out = conf.get_str(params.args[0], error)
+            self.show_output(out)
+
+        def setv():
+            if len(params.args) != 2:
+                raise ValueError
+            cvar = conf.get(params.args[0])
+            if cvar:
+                cvar.value = params.args[1]
+            else:
+                self.show_output(error)
+
+        def describe():
+            if len(params.args) == 0:
+                self.show_output(conf.describe_all())
+            else:
+                self.show_output(conf.describe(params.args[0], error))
+
+        def save():
+            if self.prompt_yes_no('Save configuration?'):
+                if self._conf_store.save('config', self._conf):
+                    self.show_output('Configuration saved')
+                # FIXME: not dealing with failure now
+
+        cmds = {
+            'get': get,
+            'describe': describe,
+            'save': save,
+            'set': setv,
+        }
+
+        cmd = cmds.get(params.cmd)
+        if not cmd:
+            raise ValueError
+        cmd()
+
+    def complete_conf(self, cmd_param_text, full_cmd, *rest):
+        complete_cmd = partial(complete_values, ['get', 'describe', 'save', 'set'])
+        complete_var = partial(complete_values, self._conf.keys())
+        completers = [complete_cmd, complete_var]
+        return complete(completers, cmd_param_text, full_cmd, *rest)
