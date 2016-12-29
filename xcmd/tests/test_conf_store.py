@@ -5,8 +5,8 @@ import shutil
 import tempfile
 import unittest
 
-from zk_shell.conf import Conf, ConfVar
-from zk_shell.conf_store import ConfStore
+from xcmd.conf import Conf, ConfVar
+from xcmd.conf_store import ConfStore
 
 
 class ConfStoreTestCase(unittest.TestCase):
