@@ -574,3 +574,37 @@ class XCmd(cmd.Cmd):
         complete_var = partial(complete_values, self._conf.keys())
         completers = [complete_cmd, complete_var]
         return complete(completers, cmd_param_text, full_cmd, *rest)
+
+    @ensure_params(Optional("match"))
+    def do_history(self, params):
+        """
+\x1b[1mNAME\x1b[0m
+        history - Prints all previous commands
+
+\x1b[1mSYNOPSIS\x1b[0m
+        history [match]
+
+\x1b[1mOPTIONS\x1b[0m
+        * match: only include commands if match is substr (default: '')
+
+\x1b[1mEXAMPLES\x1b[0m
+        > history
+        ls
+        cat /foo
+
+        # only those that match 'cat'
+        > history cat
+        cat /foo
+        cat /bar
+
+        """
+        for hcmd in self.history:
+            if hcmd is None:
+                continue
+
+            if params.match == '' or params.match in hcmd:
+                self.show_output('%s', hcmd)
+
+    def complete_history(self, cmd_param_text, full_cmd, *rest):
+        completers = [partial(complete_values, self.commands)]
+        return complete(completers, cmd_param_text, full_cmd, *rest)
