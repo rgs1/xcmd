@@ -59,7 +59,7 @@ Usage
 
 ::
 
-    (more to come)
+    (more to come: porting zk-shell over to xcmd)
 
 Dependencies
 ~~~~~~~~~~~~
