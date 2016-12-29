@@ -1,0 +1,31 @@
+Development
+===========
+
+Setup
+-----
+
+Python
+~~~~~~
+
+Install local requirements:
+
+::
+
+    $ pip install -r requirements.txt --use-mirrors
+
+Testing
+-------
+
+::
+
+    $ python setup.py nosetests --with-coverage --cover-package=xcmd
+
+Style
+-----
+
+Also ensure the code adheres to style conventions:
+
+::
+
+    $ pep8 xcmd/file.py
+    $ python3-pytlint xcmd/file.py
