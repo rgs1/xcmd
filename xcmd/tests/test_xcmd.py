@@ -45,7 +45,7 @@ class XCmdTestCase(unittest.TestCase):
         output = StringIO()
         shell = Shell(setup_readline=False, output_io=output)
 
-        regular = ['cat', 'conf', 'help', 'pipe']
+        regular = ['cat', 'conf', 'help', 'history', 'pipe']
         special = ['!!', '$?']
         self.assertEquals(regular, sorted(shell.commands))
         self.assertEquals(special, sorted(shell.special_commands))
@@ -95,4 +95,34 @@ class XCmdTestCase(unittest.TestCase):
 Configuration saved
 xcmd_history_size: 200
 """
+        self.assertEqual(expected, output.getvalue())
+
+    def test_history(self):
+        class Shell(XCmd):
+            CONF_PATH = os.path.join(self.temp_dir, '.xcmd')
+
+            # readline is disable during tests (stdout is not a tty), so we
+            # manually track it.
+            _history_test = []
+
+            @property
+            def history(self):
+                return self._history_test
+
+            @ensure_params(Required('path'))
+            def do_cat(self, params):
+                self._history_test.append('cat %s' % params.path)
+
+            @ensure_params(Required('path'))
+            def do_ls(self, params):
+                self._history_test.append('ls %s' % params.path)
+
+        output = StringIO()
+        shell = Shell(setup_readline=False, output_io=output)
+        shell.onecmd('cat /foo')
+        shell.onecmd('ls /bar')
+        shell.onecmd('history')
+
+        expected = 'cat /foo\nls /bar\n'
+
         self.assertEqual(expected, output.getvalue())
