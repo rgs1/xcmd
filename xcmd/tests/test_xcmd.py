@@ -2,6 +2,9 @@
 
 """ test xcmd proper """
 
+import os
+import shutil
+import tempfile
 import unittest
 
 try:
@@ -25,10 +28,16 @@ class XCmdTestCase(unittest.TestCase):
         pass
 
     def setUp(self):
-        pass
+        self.temp_dir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        if os.path.isdir(self.temp_dir):
+            shutil.rmtree(self.temp_dir)
 
     def test_basic(self):
         class Shell(XCmd):
+            CONF_PATH = os.path.join(self.temp_dir, '.xcmd')
+
             @ensure_params(Required('path'))
             def do_cat(self, params):
                 self.show_output('cat called with %s' % params.path)
@@ -36,7 +45,7 @@ class XCmdTestCase(unittest.TestCase):
         output = StringIO()
         shell = Shell(setup_readline=False, output_io=output)
 
-        regular = ['cat', 'help', 'pipe']
+        regular = ['cat', 'conf', 'help', 'pipe']
         special = ['!!', '$?']
         self.assertEquals(regular, sorted(shell.commands))
         self.assertEquals(special, sorted(shell.special_commands))
@@ -53,6 +62,8 @@ class XCmdTestCase(unittest.TestCase):
 
     def test_pipe(self):
         class Shell(XCmd):
+            CONF_PATH = os.path.join(self.temp_dir, '.xcmd')
+
             @ensure_params(Optional('path'))
             def do_ls(self, params):
                 self.show_output('/aaa\n/bbb')
@@ -65,3 +76,23 @@ class XCmdTestCase(unittest.TestCase):
         shell = Shell(setup_readline=False, output_io=output)
         shell.do_pipe('ls upper')
         self.assertEqual('/AAA\n/BBB\n', output.getvalue())
+
+    def test_config(self):
+        class Shell(XCmd):
+            CONF_PATH = os.path.join(self.temp_dir, '.xcmd')
+
+            def prompt_yes_no(self, _):
+                return True
+
+        output = StringIO()
+        shell = Shell(setup_readline=False, output_io=output)
+        shell.onecmd('conf get')
+        shell.onecmd('conf set xcmd_history_size 200')
+        shell.onecmd('conf save')
+        shell.onecmd('conf get')
+
+        expected = """xcmd_history_size: 100
+Configuration saved
+xcmd_history_size: 200
+"""
+        self.assertEqual(expected, output.getvalue())
