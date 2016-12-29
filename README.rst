@@ -11,7 +11,7 @@ xcmd
 tl;dr
 ~~~~~
 
-{{PROJECT_TLDR}}
+XCmd provides convenient parameters parsing on top of cmd.Cmd
 
 Installing
 ~~~~~~~~~~
@@ -27,7 +27,7 @@ Or running from the source:
 ::
 
     $ cd xcmd
-    $ export FROM_SOURCE=1; bin/foo
+    $ export FROM_SOURCE=1; bin/xcmd-shell
 
 
 Usage
@@ -35,12 +35,12 @@ Usage
 
 ::
 
-    {{PROJECT_USAGE}}
+    (more to come)
 
 Dependencies
 ~~~~~~~~~~~~
 
--  Python 2.7, 3.3 or 3.4
+-  Python 2.7, 3.3, 3.4, 3.5 or 3.6
 -
 
 Testing and Development

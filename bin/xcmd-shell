@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+
 import os
 import sys
 
@@ -8,12 +10,48 @@ if os.getenv('FROM_SOURCE') is not None:
     sys.path.insert(0, '..')
     sys.path.insert(0, '.')
 
+from xcmd.xcmd import (
+    ensure_params,
+    Required,
+    XCmd
+)
+
+
+class Shell(XCmd):
+    def __init__(self, *args, **kwargs):
+        XCmd.__init__(self, *args, **kwargs)
+        self.update_curdir('/ ')
+
+    @ensure_params(Required('path'))
+    def do_cat(self, params):
+        with open(params.path) as fh:
+            print(fh.read())
+
+    def do_exit(self, *args):
+        self._exit()
+
 
 def main():
-    pass
+    intro = 'Welcome to xcmd-shell (type help to see available commands)'
+    shell = Shell()
+    first = True
+
+    while True:
+        wants_exit = False
+
+        try:
+            shell.run(intro if first else None)
+        except KeyboardInterrupt:
+            wants_exit = True
+
+            if wants_exit:
+                try:
+                    done = raw_input('\nExit? (y|n) ')
+                    if done == 'y':
+                        break
+                except EOFError:
+                    pass
+
 
 if __name__ == '__main__':
-    try:
-        main()
-    except KeyboardInterrupt:
-        pass
+    main()
