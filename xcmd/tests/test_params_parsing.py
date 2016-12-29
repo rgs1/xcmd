@@ -11,6 +11,7 @@ from xcmd.xcmd import (
     FloatRequired,
     IntegerRequired,
     IntegerOptional,
+    LabeledBooleanOptional,
     Multi,
     MultiOptional,
     Optional,
@@ -157,4 +158,27 @@ class ParamsParsingTestCase(unittest.TestCase):
 
         called.clear()
         delete(self, '/etc/passwd true')
+        self.assertTrue(called.is_set())
+
+    def test_labeled_boolean_optional(self):
+        called = threading.Event()
+
+        @ensure_params(Required('path'), LabeledBooleanOptional('verbose'))
+        def delete(self, params):
+            self.assertEquals(params.path, '/etc/passwd')
+            self.assertEquals(params.verbose, False)
+            called.set()
+
+        delete(self, '/etc/passwd ')
+        self.assertTrue(called.is_set())
+
+        # set the optional param
+        @ensure_params(Required('path'), LabeledBooleanOptional('verbose'))
+        def delete(self, params):
+            self.assertEquals(params.path, '/etc/passwd')
+            self.assertEquals(params.verbose, True)
+            called.set()
+
+        called.clear()
+        delete(self, '/etc/passwd verbose=true')
         self.assertTrue(called.is_set())
