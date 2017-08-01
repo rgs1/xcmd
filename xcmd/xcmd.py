@@ -170,6 +170,14 @@ class ShellParser(argparse.ArgumentParser):
         full_msg = 'Wrong params: %s, expected: %s' % (message, self.valid_params)
         raise self.ParserException(full_msg)
 
+    def print_help(self, *args, **kwargs):
+        """ keep it quiet """
+        pass
+
+    def exit(self, *args, **kwargs):
+        """ parsers never quit """
+        pass
+
 
 def interruptible(func):
     """ handle KeyboardInterrupt for func """
@@ -192,7 +200,12 @@ def ensure_params_with_parser(parser, func):
         except (ShellParser.ParserException, ValueError) as ex:
             doc = getattr(func, '__doc__', None)
             command = func.__name__.replace('do_', '')
-            print('\n%s\n\n%s: %s' % (ex, command, doc) if doc else ex)
+            print_func = getattr(wrapper, 'print_function', None)
+            if callable(print_func):
+                print_func('\n%s\n\n%s: %s' % (ex, command, doc) if doc else ex)
+            else:
+                print('\n%s\n\n%s: %s' % (ex, command, doc) if doc else ex)
+
     return wrapper
 
 

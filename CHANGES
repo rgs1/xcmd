@@ -1,18 +1,16 @@
 ChangeLog
 =========
 
-0.0.1 (2016-12-25)
+0.0.3 (2017-08-01)
 --------------------
 
 Bug Handling
 ~~~~~~~~~~~~
 
--
+- don't crash upon an optional arguments when a positional argument is expected
 
 
 Features
 ~~~~~~~~
 
 -
-
-
