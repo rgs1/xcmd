@@ -182,3 +182,18 @@ class ParamsParsingTestCase(unittest.TestCase):
         called.clear()
         delete(self, '/etc/passwd verbose=true')
         self.assertTrue(called.is_set())
+
+    def test_dash_error(self):
+        @ensure_params(Required('path'))
+        def cat(self, params):
+            """ prints a path """
+            pass
+
+        # patch the print func
+        output = []
+        def capture(msg):
+            output.append(msg)
+        setattr(cat, 'print_function', capture)
+
+        cat(self, '-h')
+        self.assertIn('cat:  prints a path', ''.join(output))
