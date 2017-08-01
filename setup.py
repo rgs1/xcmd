@@ -40,7 +40,7 @@ setup(
     keywords='',
     url='',
     author='rgs',
-    author_email='rgs@pinlaptop',
+    author_email='rgs@itevenworks.net',
     license='apache',
     packages=find_packages(),
     test_suite='xcmd.tests',
