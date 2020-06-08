@@ -25,6 +25,11 @@ try:
 except ImportError:
     from io import StringIO
 
+try:
+    raw_input
+except NameError:
+    raw_input = input
+
 from .complete import complete, complete_values
 from .conf import Conf, ConfVar
 from .conf_store import ConfStore
